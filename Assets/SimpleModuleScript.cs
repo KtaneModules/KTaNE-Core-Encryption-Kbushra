@@ -648,19 +648,75 @@ public class SimpleModuleScript : MonoBehaviour {
 	}
 
 	#pragma warning disable 414
-	private string TwitchHelpMessage = "!{0} pressArrow # [Presses the specified arrow (1 = up and goes clockwise)], !{0} pressButton # [Presses the specified button].";
+	private string TwitchHelpMessage = "!{0} pressarrow # [Presses the specified arrow (1 = up and goes clockwise)], !{0} pressbutton # [Presses the specified button (goes by the number it shows, delete is 5, submit is 6)].";
 	#pragma warning restore 414
 	IEnumerator ProcessTwitchCommand(string command)
 	{
-		var arrowpressMatch = Regex.Match(command, @"^", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-		var buttonpressMatch = Regex.Match(command, @"^", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+		int num;
+		string[] parameters = command.Split(' ');
+		parameters [0] = parameters [0].ToLower ();
 
-		if (arrowpressMatch.Success) 
+		if (parameters[0] == "pressarrow") 
 		{
-			yield break;
+			if (parameters.Length == 1) 
+			{
+				yield return "sendtochaterror Not enough parameters!";
+				yield break;
+			}
+			else if(parameters.Length > 2)
+			{
+				yield return "sendtochaterror Too many parameters!";
+				yield break;
+			}
+			else if(int.TryParse(parameters[1], out num) == false)
+			{
+				yield return "sendtochaterror Second parameter is not a number!";
+				yield break;
+			}
+			else if(int.Parse(parameters[1]) < 1 || int.Parse(parameters[1]) > 4)
+			{
+				yield return "sendtochaterror Second parameter is not in range!";
+				yield break;
+			}
+			else
+			{
+				yield return null;
+				arrows [int.Parse (parameters [1]) - 1].OnInteract();
+				yield break;
+			}
 		}
-		else if (buttonpressMatch.Success)
+		else if (parameters[0] == "pressbutton") 
 		{
+			if (parameters.Length == 1) 
+			{
+				yield return "sendtochaterror Not enough parameters!";
+				yield break;
+			}
+			else if(parameters.Length > 2)
+			{
+				yield return "sendtochaterror Too many parameters!";
+				yield break;
+			}
+			else if(int.TryParse(parameters[1], out num) == false)
+			{
+				yield return "sendtochaterror Second parameter is not a number!";
+				yield break;
+			}
+			else if(int.Parse(parameters[1]) < 0 || int.Parse(parameters[1]) > 6)
+			{
+				yield return "sendtochaterror Second parameter is not in range!";
+				yield break;
+			}
+			else
+			{
+				yield return null;
+				buttons [int.Parse (parameters [1])].OnInteract();
+				yield break;
+			}
+		}
+		else
+		{
+			yield return "sendtochaterror That command does not exist!";
 			yield break;
 		}
 	}

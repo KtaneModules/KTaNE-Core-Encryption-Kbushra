@@ -11,10 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
   m_Name: ModConfig
   m_EditorClassIdentifier: 
-  id: decryptcore
-  title: Core Decryption
+  id: encryptcore
+  title: Core Encryption
   author: That one kid
   description: Go through a maze to find the starting values, and decrypt the cores
   version: 1.0
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: 53456cf0d936c8848aa0ea51f0c3c3f3, type: 3}
+  previewImage: {fileID: 2800000, guid: e8218464fb2f3564888673a1eeca991d, type: 3}
