@@ -24,8 +24,8 @@ public class SimpleModuleScript : MonoBehaviour {
 	private int randNum2;
 	private string randText;
 	private string[] randTextStore = new string[4];
-	private float[] textOrder = new float[4];
-	private float[] numShifts = new float[4];
+	private double[] textOrder = new double[4];
+	private double[] numShifts = new double[4];
 	private int[] intShifts = new int[4];
 	private int[] mazeCoords = new int[5];
 	private int[] currentPos = new int[2];
@@ -143,7 +143,7 @@ public class SimpleModuleScript : MonoBehaviour {
 			}
 		}
 
-		Debug.LogFormat("[Core Decryption #{0}] The starting position of the maze is at {1},{2} and the goal is at {3}, {4} and the number determining the maze is {5}", ModuleId, mazeCoords[0] + 1, mazeCoords[1] + 1, mazeCoords[2] + 1, mazeCoords[3] + 1, mazeCoords[4]);
+		Debug.LogFormat("[Core Encryption #{0}] The starting position of the maze is at {1},{2} and the goal is at {3}, {4} and the number determining the maze is {5}", ModuleId, mazeCoords[0] + 1, mazeCoords[1] + 1, mazeCoords[2] + 1, mazeCoords[3] + 1, mazeCoords[4]);
 
 		currentPos [0] = mazeCoords [0];
 		currentPos [1] = mazeCoords [1];
@@ -184,26 +184,30 @@ public class SimpleModuleScript : MonoBehaviour {
 
 	void Calculate()
 	{
-		textOrder[0] = float.Parse(randTextStore [randNum2]);
-		textOrder[1] = float.Parse(randTextStore [(randNum2 + 1) % 4]);
-		textOrder[2] = float.Parse(randTextStore [(randNum2 + 2) % 4]);
-		textOrder[3] = float.Parse(randTextStore [(randNum2 + 3) % 4]);
+		textOrder[0] = double.Parse(randTextStore [randNum2]);
+		textOrder[1] = double.Parse(randTextStore [(randNum2 + 1) % 4]);
+		textOrder[2] = double.Parse(randTextStore [(randNum2 + 2) % 4]);
+		textOrder[3] = double.Parse(randTextStore [(randNum2 + 3) % 4]);
 
-		numShifts [0] = (((textOrder [0] * textOrder [0])) + (textOrder [1].ToString().ToCharArray() [0] * textOrder [1].ToString().ToCharArray() [1] * textOrder [1].ToString().ToCharArray() [2] * textOrder [1].ToString().ToCharArray() [3] * textOrder [1].ToString().ToCharArray() [4])) % 88889;
-		numShifts [1] = (textOrder [0].ToString().ToCharArray () [0] + textOrder [1].ToString().ToCharArray() [1] - textOrder [2].ToString().ToCharArray() [2] + textOrder [3].ToString().ToCharArray() [3] + 10) % 88889;
-		numShifts [2] = ((textOrder [2] * textOrder [0]) / (textOrder [1] + textOrder [3]) + 9999) % 88889;
-		numShifts [3] = ((textOrder [2].ToString ().ToCharArray () [2] * textOrder [3]) / (textOrder [1] - textOrder [0].ToString ().ToCharArray () [2]) + 11111) % 88889;
+		numShifts [0] = ((textOrder [0] * textOrder [0]) + (char.GetNumericValue(textOrder [0].ToString().ToCharArray() [0]) * char.GetNumericValue(textOrder [0].ToString().ToCharArray() [1]) * char.GetNumericValue(textOrder [0].ToString().ToCharArray() [2]) * char.GetNumericValue(textOrder [0].ToString().ToCharArray() [3]) * char.GetNumericValue(textOrder [0].ToString().ToCharArray() [4]))) % 88889;
+		numShifts [1] = (char.GetNumericValue(textOrder [0].ToString().ToCharArray () [0]) + char.GetNumericValue(textOrder [1].ToString().ToCharArray() [1]) - char.GetNumericValue(textOrder [2].ToString().ToCharArray() [2]) + char.GetNumericValue(textOrder [3].ToString().ToCharArray() [3]) + 10) % 88889;
+		numShifts [2] = ((textOrder [2] * textOrder [0]) / (textOrder [1] * textOrder [3]) + 9999) % 88889;
+		numShifts [3] = ((char.GetNumericValue(textOrder [2].ToString ().ToCharArray () [2]) * textOrder [3]) / (textOrder [1] - char.GetNumericValue(textOrder [0].ToString ().ToCharArray () [2])) + 11111) % 88889;
 
-		intShifts [0] = (int)Mathf.Floor (numShifts [0]);
-		intShifts [1] = (int)Mathf.Floor (numShifts [1]);
-		intShifts [2] = (int)Mathf.Floor (numShifts [2]);
-		intShifts [3] = (int)Mathf.Floor (numShifts [3]);
+		intShifts [0] = (int)Mathf.Floor ((float)numShifts [0]);
+		intShifts [1] = (int)Mathf.Floor ((float)numShifts [1]);
+		intShifts [2] = (int)Mathf.Floor ((float)numShifts [2]);
+		intShifts [3] = (int)Mathf.Floor ((float)numShifts [3]);
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (intShifts[i] < 10000) 
+			{
+				intShifts[i] = intShifts[i] + 10000;
+			}
+		}
 
 		output = ((int.Parse (randTextStore [0]) + intShifts [0]) - (int.Parse (randTextStore [1]) + intShifts [1]) + (int.Parse (randTextStore [2]) + intShifts [2]) - (int.Parse (randTextStore [3]) + intShifts [3]) + 1000000) % 44445;
-		if (output < 10000) 
-		{
-			output = output + 10000;
-		}
 		for(int i = 0; i < 5; i++)
 		{
 			if (output.ToString ().ToCharArray () [i] > 4) 
@@ -214,7 +218,7 @@ public class SimpleModuleScript : MonoBehaviour {
 				output = int.Parse (outputstring);
 			}
 		}
-		Debug.LogFormat("[Core Decryption #{0}] The 4 shifts are {1}, {2}, {3} and {4}, with {5} being the answer", ModuleId, intShifts[0], intShifts[1], intShifts[2], intShifts[3], output);
+		Debug.LogFormat("[Core Encryption #{0}] The 4 shifts are {1}, {2}, {3} and {4}, with {5} being the answer", ModuleId, intShifts[0], intShifts[1], intShifts[2], intShifts[3], output);
 	}
 
 	void buttonPress(KMSelectable pressedButton)
@@ -555,7 +559,7 @@ public class SimpleModuleScript : MonoBehaviour {
 				}
 				break;
 			}
-			Debug.LogFormat ("[Core Decryption #{0}] Your current position is now {1},{2}", ModuleId, currentPos [0] + 1, currentPos [1] + 1);
+			Debug.LogFormat ("[Core Encryption #{0}] Your current position is now {1},{2}", ModuleId, currentPos [0] + 1, currentPos [1] + 1);
 		}
 		else
 		{
@@ -626,7 +630,7 @@ public class SimpleModuleScript : MonoBehaviour {
 			}
 		}
 
-		Debug.LogFormat("[Core Decryption #{0}] The starting position of the maze is at {1},{2} and the goal is at {3}, {4} and the number determining the maze is {5}", ModuleId, mazeCoords[0] + 1, mazeCoords[1] + 1, mazeCoords[2] + 1, mazeCoords[3] + 1, mazeCoords[4]);
+		Debug.LogFormat("[Core Encryption #{0}] The starting position of the maze is at {1},{2} and the goal is at {3}, {4} and the number determining the maze is {5}", ModuleId, mazeCoords[0] + 1, mazeCoords[1] + 1, mazeCoords[2] + 1, mazeCoords[3] + 1, mazeCoords[4]);
 
 		currentPos [0] = mazeCoords [0];
 		currentPos [1] = mazeCoords [1];
@@ -644,7 +648,7 @@ public class SimpleModuleScript : MonoBehaviour {
 
 	void Log(string message)
 	{
-		Debug.LogFormat("[Core Decryption #{0}] {1}", ModuleId, message);
+		Debug.LogFormat("[Core Encryption #{0}] {1}", ModuleId, message);
 	}
 
 	#pragma warning disable 414
