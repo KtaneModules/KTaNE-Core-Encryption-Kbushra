@@ -68,6 +68,7 @@ public class SimpleModuleScript : MonoBehaviour {
 	bool lightsOn = false;
 	bool scroll = false;
 	bool scroll2 = false;
+	bool flashingOn = false;
 
 	void Awake()
 	{
@@ -105,11 +106,25 @@ public class SimpleModuleScript : MonoBehaviour {
 
 	IEnumerator ScreenScroll()
 	{
+		if (maze1chosen == true && maze1 [mazeCoords [2], mazeCoords [3]] == 6) 
+		{
+			maze1 [mazeCoords [2], mazeCoords [3]] = maze1 [mazeCoords [2], mazeCoords [3]] - 5;
+		}
+		else if (maze1chosen == true) 
+		{
+			maze1 [mazeCoords [2], mazeCoords [3]] = 0;
+		}
+		else if (maze1chosen == false && maze2 [mazeCoords [2], mazeCoords [3]] == 6) 
+		{
+			maze2 [mazeCoords [2], mazeCoords [3]] = maze2 [mazeCoords [2], mazeCoords [3]] - 5;
+		}
+		else if (maze1chosen == false) 
+		{
+			maze2 [mazeCoords [2], mazeCoords [3]] = 0;
+		}
+
 		maze1chosen = false;
-		maze1 [mazeCoords [0], mazeCoords [1]] = 0;
-		maze2 [mazeCoords [0], mazeCoords [1]] = 0;
-		maze1 [mazeCoords [2], mazeCoords [3]] = 0;
-		maze2 [mazeCoords [2], mazeCoords [3]] = 0;
+
 		for(int i = 0; i < 4; i++)
 		{
 			randNum = Rnd.Range (11111, 44444);
@@ -148,36 +163,42 @@ public class SimpleModuleScript : MonoBehaviour {
 		currentPos [0] = mazeCoords [0];
 		currentPos [1] = mazeCoords [1];
 
-		while(scroll2 == false)
+		while(scroll2 == false && flashingOn == false)
 		{
 			for(int j = 0; j < 4; j++)
 			{
 				yield return new WaitForSeconds (0.4f);
 				Displays [1].text = randTextStore [j];
+				if (flashingOn == true) 
+				{
+					break;
+				}
 			}
 		}
-	}
-
-	IEnumerator Flashes()
-	{
-		displayRend = indicator.GetComponent<Renderer>();
-		displayRend.enabled = true;
-		Displays [2].gameObject.SetActive (false);
-		randNum2 = Rnd.Range (0, 3);
-
-		Calculate ();
-
-		while (solvedMaze == true && _isSolved == false)
+		if (flashingOn == true) 
 		{
-			if (Displays [1].text == randTextStore [randNum2])
+			displayRend = indicator.GetComponent<Renderer>();
+			displayRend.enabled = true;
+			Displays [2].gameObject.SetActive (false);
+			randNum2 = Rnd.Range (0, 3);
+
+			Calculate ();
+
+			while (solvedMaze == true && _isSolved == false)
 			{
-				displayRend.sharedMaterial = orange;
-				yield return new WaitForSeconds (0.4f);
-			} 
-			else 
-			{
-				displayRend.sharedMaterial = black;
-				yield return new WaitForSeconds (0.4f);
+				for(int j = 0; j < 4; j++)
+				{
+					yield return new WaitForSeconds (0.4f);
+					Displays [1].text = randTextStore [j];
+					if (Displays [1].text == randTextStore [randNum2])
+					{
+						displayRend.sharedMaterial = orange;
+					} 
+					else 
+					{
+						displayRend.sharedMaterial = black;
+					}
+				}
 			}
 		}
 	}
@@ -208,12 +229,13 @@ public class SimpleModuleScript : MonoBehaviour {
 		}
 
 		output = ((int.Parse (randTextStore [0]) + intShifts [0]) - (int.Parse (randTextStore [1]) + intShifts [1]) + (int.Parse (randTextStore [2]) + intShifts [2]) - (int.Parse (randTextStore [3]) + intShifts [3]) + 1000000) % 44445;
-		for(int i = 0; i < 5; i++)
+		char[] outputchar = output.ToString ().ToCharArray ();
+
+		for(int i = 0; i < output.ToString().ToCharArray().Length; i++)
 		{
 			if (output.ToString ().ToCharArray () [i] > 4) 
 			{
-				char[] outputchar = output.ToString ().ToCharArray ();
-				outputchar [i] = (int.Parse (outputchar [i].ToString ()) % 5).ToString().ToCharArray()[0];
+				outputchar [i] = (Convert.ToInt32 (outputchar [i].ToString ()) % 5).ToString().ToCharArray()[0];
 				string outputstring = new string (outputchar);
 				output = int.Parse (outputstring);
 			}
@@ -352,7 +374,7 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
 					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true)
@@ -379,10 +401,10 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
-					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true)
+					else if(maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords[2],mazeCoords[3]] && scroll2 == true)
 					{
 						module.HandlePass ();
 						Log ("Module solved!");
@@ -408,7 +430,7 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
 					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true)
@@ -435,10 +457,10 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
-					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true)
+					else if(maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords[2],mazeCoords[3]] && scroll2 == true)
 					{
 						module.HandlePass ();
 						Log ("Module solved!");
@@ -464,7 +486,7 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
 					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true && scroll2 == true)
@@ -491,10 +513,10 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
-					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true && scroll2 == true)
+					else if(maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords[2],mazeCoords[3]] && scroll2 == true && scroll2 == true)
 					{
 						module.HandlePass ();
 						Log ("Module solved!");
@@ -520,7 +542,7 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
 					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true && scroll2 == true)
@@ -547,10 +569,10 @@ public class SimpleModuleScript : MonoBehaviour {
 					if (maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords [2], mazeCoords [3]] && scroll2 == false) 
 					{
 						solvedMaze = true;
-						StartCoroutine (Flashes ());
+						flashingOn = true;
 						Log ("Flashings commenced");
 					}
-					else if(maze1 [currentPos [0], currentPos [1]] == maze1 [mazeCoords[2],mazeCoords[3]] && scroll2 == true && scroll2 == true)
+					else if(maze2 [currentPos [0], currentPos [1]] == maze2 [mazeCoords[2],mazeCoords[3]] && scroll2 == true && scroll2 == true)
 					{
 						module.HandlePass ();
 						Log ("Module solved!");
@@ -578,14 +600,20 @@ public class SimpleModuleScript : MonoBehaviour {
 	{
 		char[] chara = textOrder [0].ToString ().ToCharArray ();
 		scroll2 = true;
-		if (maze1chosen == true)
+		if (maze1chosen == true && maze1 [mazeCoords [2], mazeCoords [3]] == 6) 
 		{
-			maze1 [mazeCoords [0], mazeCoords [1]] = 0;
+			maze1 [mazeCoords [2], mazeCoords [3]] = maze1 [mazeCoords [2], mazeCoords [3]] - 5;
+		}
+		else if (maze1chosen == true) 
+		{
 			maze1 [mazeCoords [2], mazeCoords [3]] = 0;
 		}
-		else
+		else if (maze1chosen == false && maze2 [mazeCoords [2], mazeCoords [3]] == 6) 
 		{
-			maze2 [mazeCoords [0], mazeCoords [1]] = 0;
+			maze2 [mazeCoords [2], mazeCoords [3]] = maze2 [mazeCoords [2], mazeCoords [3]] - 5;
+		}
+		else if (maze1chosen == false) 
+		{
 			maze2 [mazeCoords [2], mazeCoords [3]] = 0;
 		}
 		solvedMaze = false;
@@ -599,11 +627,11 @@ public class SimpleModuleScript : MonoBehaviour {
 
 		for (int i = 0; i < 5; i++) 
 		{
-			mazeCoords [i] = (randTextStore [0].ToCharArray () [i] * randTextStore [1].ToCharArray () [i] * randTextStore [2].ToCharArray () [i] * randTextStore [3].ToCharArray () [i]) % 8;
+			mazeCoords [i] = (randTextStore [0].ToCharArray () [i] + randTextStore [1].ToCharArray () [i] + randTextStore [2].ToCharArray () [i] + randTextStore [3].ToCharArray () [i]) % 8;
 		}
 			
-		mazeCoords [0] = (mazeCoords[0] + int.Parse (chara[0].ToString ())) % 8;
-		mazeCoords [1] = (mazeCoords[1] + int.Parse (chara[4].ToString ())) & 8;
+		mazeCoords [0] = (mazeCoords[0] + Convert.ToInt32 (chara[0].ToString ())) % 8;
+		mazeCoords [1] = (mazeCoords[1] + Convert.ToInt32 (chara[4].ToString ())) % 8;
 
 
 		if (mazeCoords [4] % 2 == 0)
