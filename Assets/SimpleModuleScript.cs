@@ -228,7 +228,7 @@ public class SimpleModuleScript : MonoBehaviour {
 			}
 		}
 
-		output = ((int.Parse (randTextStore [0]) + intShifts [0]) - (int.Parse (randTextStore [1]) + intShifts [1]) + (int.Parse (randTextStore [2]) + intShifts [2]) - (int.Parse (randTextStore [3]) + intShifts [3]) + 1000000) % 44445;
+		output = ((Convert.ToInt32 (textOrder [0]) + intShifts [0]) - (Convert.ToInt32 (textOrder [1]) + intShifts [1]) + (Convert.ToInt32 (textOrder [2]) + intShifts [2]) - (Convert.ToInt32 (textOrder [3]) + intShifts [3]) + 1000000) % 44445;
 		char[] outputchar = output.ToString ().ToCharArray ();
 
 		for(int i = 0; i < output.ToString().ToCharArray().Length; i++)
